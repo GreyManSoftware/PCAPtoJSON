@@ -1,3 +1,8 @@
+// Don't be a dick, leave this here - but use this as you see fit:)
+// Chris Davies
+// 89serenity@gmail.com
+// git.greymansoftware.com
+
 #include "pcaptojson.h"
 
 int packet_count = 0;
