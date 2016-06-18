@@ -147,6 +147,6 @@ int main (int argc, char **argv)
 	
 	pcap_loop(handle, -1, process_pkt, NULL);
 
-	printf("\n  ]\n}");
+	printf("\n  ]\n}\n");
 	return 0;
 }
