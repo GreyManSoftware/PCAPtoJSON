@@ -10,7 +10,7 @@ int headerPrinted = 0;
 
 void print_usage ()
 {
-	fprintf(stderr, "Usage: [-r <input_file>] [-w output_file]");
+	fprintf(stderr, "Usage: [-r <input_file>] [-w output_file]\n");
 }
 
 void process_pkt (u_char *args, const struct pcap_pkthdr *header, const u_char *buffer)
@@ -116,21 +116,19 @@ int main (int argc, char **argv)
 			case '?':
 				if (optopt == 'r')
 				{
-					print_usage(argv[0]);
-					fprintf(stderr, "-r <file.pcap>\n");
+					print_usage();
 					exit(-1);
 				}
 				else if (optopt == 'w')
 				{
-					print_usage(argv[0]);
-					fprintf(stderr, "-w <outfile>\n");
+					print_usage();
 					exit(-1);
 				}
 				else
 				{
-					fprintf(stderr, "Invalid option %c\n", optopt);
+					print_usage();
+					exit(-2);
 				}
-				exit(-2);
 
 				default:
 					break;	
