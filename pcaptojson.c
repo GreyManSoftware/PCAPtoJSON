@@ -64,7 +64,7 @@ int main (int argc, char **argv)
 	int opt;
 	pcap_t *handle;
 	char errbuf[PCAP_ERRBUF_SIZE];
-	char *file_name = NULL;
+	char *file_name = "-";
 	char *outfile = NULL;
 	
 	//parse args
@@ -104,12 +104,7 @@ int main (int argc, char **argv)
 					break;	
 		}
 	}
-	
-	if (file_name == NULL)
-	{
-		file_name = "-";
-	}
-	
+
 	printf("Attempting to read from %s\n", file_name);
 	if ((handle = pcap_open_offline(file_name,errbuf)) == NULL)
 	{
