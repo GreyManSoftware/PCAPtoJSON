@@ -12,8 +12,20 @@
 
 #define SNAPLEN 65536
 
-void print_usage ();
+void print_usage();
 
 void process_pkt (u_char *args, const struct pcap_pkthdr *header, const u_char *buffer);
 
 void process_ip (u_char *args, const struct pcap_pkthdr *header, const u_char *buffer, int offset);
+
+typedef struct Packet
+{
+	struct timeval datetime;
+	char daddr[16];
+	char saddr[16];
+	uint16_t dport;
+	uint16_t sport;
+	int8_t proto;
+} Packet;
+
+void packet_to_json(Packet p);

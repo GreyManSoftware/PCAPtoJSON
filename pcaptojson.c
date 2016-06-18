@@ -1,6 +1,7 @@
 #include "pcaptojson.h"
 
 int packet_count = 0;
+int headerPrinted = 0;
 
 void print_usage ()
 {
@@ -22,41 +23,67 @@ void process_pkt (u_char *args, const struct pcap_pkthdr *header, const u_char *
 void process_ip (u_char *args, const struct pcap_pkthdr *header, const u_char *buffer, int offset)
 {
 	struct iphdr *ip = (struct iphdr *)(buffer+offset);
+	Packet PacketData;
+	PacketData.datetime = header->ts;
 	struct tcphdr *tcp;
 	struct udphdr *udp;
 
-	char dst_ip[16], src_ip[16];
-	uint32_t hash;
-	uint16_t sport, dport;
-	uint8_t nproto = ip->protocol;
+	PacketData.proto = ip->protocol;
 	
-	strcpy(dst_ip, inet_ntoa(* (struct in_addr *) &ip->daddr));
-	strcpy(src_ip, inet_ntoa(* (struct in_addr *) &ip->saddr));
+	strcpy(PacketData.daddr, inet_ntoa(* (struct in_addr *) &ip->daddr));
+	strcpy(PacketData.saddr, inet_ntoa(* (struct in_addr *) &ip->saddr));
 
-	printf("%d: Proto: %d - src: %s - dst: %s - ", packet_count++, ip->protocol, dst_ip, src_ip);
+	//printf("%d: Proto: %d - src: %s - dst: %s - ", packet_count++, ip->protocol, PacketData.daddr, PacketData.saddr);
 
-	switch (nproto)
+	switch (PacketData.proto)
 	{
 		case 6:
 			//TCP
 			tcp = (struct tcphdr *)(buffer+offset+(ip->ihl*4));
-			sport = tcp->source;
-			dport = tcp->dest;
+			PacketData.sport = ntohs(tcp->source);
+			PacketData.dport = ntohs(tcp->dest);
+			packet_to_json(PacketData);
 			break;
 		case 17:
 			//UDP
 			udp = (struct udphdr *)(buffer+offset+(ip->ihl*4));
-			sport = udp->source;
-			dport = udp->dest;
+			PacketData.sport = ntohs(udp->source);
+			PacketData.dport = ntohs(udp->dest);
+			packet_to_json(PacketData);
 			break;
 		default:
 			fprintf(stderr, "Proto unknown\n");
-			sport = 0;
-			dport = 0;
+			PacketData.sport = 0;
+			PacketData.dport = 0;
 			break;
 	}
 	
-	printf("src_port: %d - dst_port: %d\n", ntohs(sport), ntohs(dport));
+	//printf("src_port: %d - dst_port: %d\n", PacketData.sport, PacketData.dport);
+
+
+}
+
+void packet_to_json(Packet packet)
+{
+	if (headerPrinted == 0)
+	{
+		printf("{\n  \"packets\":[\n");
+		headerPrinted = 1;
+		printf("    {\n");
+	}
+	else
+	{
+		printf(",\n");
+		printf("    {\n");
+	}
+	
+	printf("     \"DateTime\":\"%ld.%06ld\",\n", packet.datetime.tv_sec, packet.datetime.tv_usec);
+	printf("     \"src_ip\":\"%s\",\n", packet.saddr);
+	printf("     \"dst_ip\":\"%s\",\n", packet.daddr);
+	printf("     \"src_port\":%d,\n", packet.sport);
+	printf("     \"dst_port\":%d,\n", packet.dport);
+	printf("     \"NextProtocol\":%d\n", packet.proto);
+	printf("    }");
 }
 
 int main (int argc, char **argv)
@@ -85,13 +112,13 @@ int main (int argc, char **argv)
 				if (optopt == 'r')
 				{
 					print_usage(argv[0]);
-					printf("-r <file.pcap>\n");
+					fprintf(stderr, "-r <file.pcap>\n");
 					exit(-1);
 				}
 				else if (optopt == 'w')
 				{
 					print_usage(argv[0]);
-					printf("-w <outfile>\n");
+					fprintf(stderr, "-w <outfile>\n");
 					exit(-1);
 				}
 				else
@@ -105,14 +132,16 @@ int main (int argc, char **argv)
 		}
 	}
 
-	printf("Attempting to read from %s\n", file_name);
+	//printf("Attempting to read from %s\n", file_name);
 	if ((handle = pcap_open_offline(file_name,errbuf)) == NULL)
 	{
 		fprintf(stderr, "Error opening file %s\n", file_name);
 		exit(-4);
 	}
 	
+	
 	pcap_loop(handle, -1, process_pkt, NULL);
 
+	printf("\n  ]\n}");
 	return 0;
 }
