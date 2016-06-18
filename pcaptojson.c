@@ -1,4 +1,4 @@
-#include "packet_parse.h"
+#include "pcaptojson.h"
 
 int packet_count = 0;
 
@@ -107,7 +107,7 @@ int main (int argc, char **argv)
 	
 	if (file_name == NULL)
 	{
-		*file_name = "-";
+		file_name = "-";
 	}
 	
 	printf("Attempting to read from %s\n", file_name);
