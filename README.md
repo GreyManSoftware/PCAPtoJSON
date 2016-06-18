@@ -14,4 +14,4 @@ run as follows:
 
 cat packets | ./pcaptojson
 
-Hope this is useful. Feel free to do whatever you want with this software. A mention is always nice :)
+Hope this is useful. Feel free to do whatever you want with this software. A mention is always nice, but don't come looking for me if everything explodes and catches fire :)
