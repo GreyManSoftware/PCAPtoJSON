@@ -7,6 +7,7 @@
 
 int packet_count = 0;
 int headerPrinted = 0;
+FILE *fp;
 
 void print_usage ()
 {
@@ -72,23 +73,23 @@ void packet_to_json(Packet packet)
 {
 	if (headerPrinted == 0)
 	{
-		printf("{\n  \"packets\":[\n");
+		fprintf(fp,"{\n  \"packets\":[\n");
 		headerPrinted = 1;
-		printf("    {\n");
+		fprintf(fp,"    {\n");
 	}
 	else
 	{
-		printf(",\n");
-		printf("    {\n");
+		fprintf(fp,",\n");
+		fprintf(fp,"    {\n");
 	}
 	
-	printf("     \"DateTime\":\"%ld.%06ld\",\n", packet.datetime.tv_sec, packet.datetime.tv_usec);
-	printf("     \"src_ip\":\"%s\",\n", packet.saddr);
-	printf("     \"dst_ip\":\"%s\",\n", packet.daddr);
-	printf("     \"src_port\":%d,\n", packet.sport);
-	printf("     \"dst_port\":%d,\n", packet.dport);
-	printf("     \"NextProtocol\":%d\n", packet.proto);
-	printf("    }");
+	fprintf(fp,"     \"DateTime\":\"%ld.%06ld\",\n", packet.datetime.tv_sec, packet.datetime.tv_usec);
+	fprintf(fp,"     \"src_ip\":\"%s\",\n", packet.saddr);
+	fprintf(fp,"     \"dst_ip\":\"%s\",\n", packet.daddr);
+	fprintf(fp,"     \"src_port\":%d,\n", packet.sport);
+	fprintf(fp,"     \"dst_port\":%d,\n", packet.dport);
+	fprintf(fp,"     \"NextProtocol\":%d\n", packet.proto);
+	fprintf(fp,"    }");
 }
 
 int main (int argc, char **argv)
@@ -142,9 +143,14 @@ int main (int argc, char **argv)
 		exit(-4);
 	}
 	
+	if (outfile != NULL)
+		fp = fopen(outfile, "w");
+	else
+		fp = stdout;
+
 	
 	pcap_loop(handle, -1, process_pkt, NULL);
 
-	printf("\n  ]\n}\n");
+	fprintf(fp, "\n  ]\n}\n");
 	return 0;
 }
