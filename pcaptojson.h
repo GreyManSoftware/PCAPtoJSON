@@ -14,9 +14,9 @@
 
 void print_usage();
 
-void process_pkt (u_char *args, const struct pcap_pkthdr *header, const u_char *buffer);
+void process_pkt(u_char *args, const struct pcap_pkthdr *header, const u_char *buffer);
 
-void process_ip (u_char *args, const struct pcap_pkthdr *header, const u_char *buffer, int offset);
+void process_ip(u_char *args, const struct pcap_pkthdr *header, const u_char *buffer, int offset);
 
 typedef struct Packet
 {
